@@ -48,16 +48,12 @@ int main()
 {
 	char a[MaxSize];
 	int t = 0;
-	do
-	{
-		cout << "请输入由小写字母与+-*/()=组成的等式,本程序将检查语句合法性" << endl;
-		cin >> a;
-		if (judge(a))
-			cout << "语句合法!" << endl;
-		else
-			cout << "语句不合法!" << endl;
-	}
-	while (!t);
+	cout << "请输入由小写字母与+-*/()=组成的等式,本程序将检查语句合法性" << endl;
+	cin >> a;
+	if (judge(a))
+	       cout << "语句合法!" << endl;
+	else
+	       cout << "语句不合法!" << end;
 	system("pause");
 	return 0;
 }
