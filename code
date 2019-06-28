@@ -1,3 +1,4 @@
+```
 #include <iostream>
 using namespace std;
 #define ElemType char
@@ -205,3 +206,4 @@ bool judge(char *a)
 //         6.括号视为特殊的变量,左右括号数需相等
 //         7.连续的左括号连续压栈
 //         8.连续的右括号,后一个右括号进栈时将前一个退栈,同时将一个左括号退栈
+```
