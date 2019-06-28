@@ -1,0 +1,211 @@
+#include <iostream>
+using namespace std;
+#define ElemType char
+#define MaxSize 20
+typedef struct
+{
+	ElemType data[MaxSize];
+	int top;
+}SqStack;
+void InitStack(SqStack *&s)
+{
+	s = (SqStack *)malloc(sizeof(SqStack));
+	s->top = -1;
+}
+void DestroyStack(SqStack *&s)
+{
+	free(s);
+}
+bool StackEmpty(SqStack *s)
+{
+	return(s->top == -1);
+}
+bool Push(SqStack *&s, ElemType e)
+{
+	if (s->top == MaxSize - 1)
+		return false;
+	s->top++;
+	s->data[s->top] = e;
+	return true;
+}
+bool Pop(SqStack *&s, ElemType &e)
+{
+	if (s->top == -1)
+		return false;
+	e = s->data[s->top];
+	s->top--;
+	return true;
+}
+bool GetTop(SqStack *s, ElemType &e)
+{
+	if (s->top == -1)
+		return false;
+	e = s->data[s->top];
+	return true;
+}
+bool judge(char *);
+int main()
+{
+	char a[MaxSize];
+	int t = 0;
+	do
+	{
+		cout << "请输入由小写字母与+-*/()=组成的等式,本程序将检查语句合法性" << endl;
+		cin >> a;
+		if (judge(a))
+			cout << "语句合法!" << endl;
+		else
+			cout << "语句不合法!" << endl;
+	}
+	while (!t);
+	system("pause");
+	return 0;
+}
+
+bool judge(char *a)
+{
+	SqStack *s;
+	ElemType e;
+	int bracket_sym = 0;                      //检验括号对称性
+	int num_equ = 0;                          //检验等号个数
+	InitStack(s);
+	if (*(a + 1) != '=')                      //预处理,检验第二位是否为等号
+		return false;
+	while (*a != '\0')                        //字符串遍历
+	{
+		switch (*a)
+		{
+		case '(':                             //如果为'('
+		{
+			Pop(s, e);                        //出栈一次
+			if (e == '(')                     //如果出栈元素是'('
+			{
+				Push(s, e);                   //将出栈元素再次压栈
+				Push(s, *a);                  //将自己压栈
+			}
+			else
+			{
+				if (e >= 'a' && e <= 'z')     //如果出栈元素是小写字母
+					return false;             //返回不合法
+				else                          //如果不是小写字母
+					Push(s, *a);              //将自己压栈
+			}
+			a++;                              //扫描下一个字符
+			bracket_sym++;                    //括号数加1
+		}
+		    break;
+		case ')':                             //如果为')’
+		{
+			Pop(s, e);                        //出栈一次
+			if (e == ')')                     //如果栈顶是')'
+			{
+				Pop(s, e);                    //再出栈一次
+				Push(s, *a);                  //将自己入栈
+			}
+			else if (e >= 'a' && e <= 'z')    //如果出栈元素为小写字母
+			{
+				Pop(s, e);                    //再出栈一次
+				if (e != '(')                 //如果出栈元素不为'('
+					return false;             //返回不合法
+				else                          //如果是'('
+					Push(s, *a);              //将自己压栈
+			} 
+			else                              //其他情况
+				return false;                 //返回不合法
+			a++;
+			bracket_sym--;                    //括号数减1
+		}
+		    break;
+
+		case '=':                             //如果为'='
+		{
+			Pop(s, e);                        //出栈一次
+			if (e < 'a' || e > 'z'||*(a- num_equ)!='=')           
+				//如果出栈元素不为小写字母,且字符*(a- num_equ)不为'='			                              
+				return false;                 //返回不合法
+			else                              //其他情况
+				Push(s, *a);                  //将自己压栈
+			a++;
+			num_equ = 2;                      //当等号个数大于1时,将num_equ置2
+		}
+			break;
+		case '+':                             //如果为'+''-''*''/'
+		case '-':
+		case '*':
+		case '/':
+		{
+			Pop(s, e);                        //出栈一次
+			if (e != ')')                     //如果出栈元素不为')'
+			{
+				if (e < 'a' || e > 'z')       //如果出栈元素不为小写字母
+					return false;             //返回不合法
+				else                          //如果出栈元素为小写字母
+					Push(s, *a);              //将自己压栈
+			}
+			else                              //如果出栈元素为')'
+				Push(s, *a);                  //将自己压栈
+			a++;
+		}
+			break;
+		default:                              
+			if (*a >= 'a'&&*a <= 'z')         //如果为小写字母
+			{
+				if (Pop(s, e))                //如果栈不空,出栈一次
+				{
+					if (e == '+' || e == '-' || e == '*' || e == '/' || e == '=')
+						//如果出栈元素为'+''-''*''/''='
+						Push(s, *a);          //将自己压栈
+					else if (e == '(')        //如果出栈元素为'('
+					{
+						Push(s, e);           //将出栈元素压栈
+						Push(s, *a);          //将自己压栈
+					}
+					else                      
+						//如果出栈元素不为'+''-''*''/''=''('
+						return false;         //返回不合法
+				}
+				else                          //如果栈空
+					Push(s, *a);              //将自己压栈  
+				a++;
+			}
+			else                              //其他情况
+			    return false;                 //返回不合法
+			break;
+		}
+	}
+	if (*a == '\0')                           //扫描到字符串末尾
+	{
+		Pop(s, e);                            //出栈一次
+		if (e != ')')                         //如果出栈元素不为')'
+		{
+			if (e < 'a' || e > 'z')           //如果出栈元素不为小写字母
+				Push(s, e);                   //将出栈元素压栈
+		}
+	}
+	if (bracket_sym != 0)                     //如果括号不对称
+		return false;                         //返回不合法
+	return StackEmpty(s);                     //返回是否栈空
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//算法思想 0.运用栈堆处理字符串
+//         1.赋值号左边必须为变量
+//         2.左括号前必须为运算符或赋值号
+//         3.右括号后必须为运算符或赋值号或'\0'
+//         4.变量,运算符不能连续出现
+//         5.不考虑括号时,变量和运算符为交替出现
+//         6.括号视为特殊的变量,左右括号数需相等
+//         7.连续的左括号连续压栈
+//         8.连续的右括号,后一个右括号进栈时将前一个退栈,同时将一个左括号退栈
